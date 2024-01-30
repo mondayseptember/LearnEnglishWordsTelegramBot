@@ -21,20 +21,19 @@ fun main() {
     }
 
     fun MutableList<Word>.filter(): Int = filter {
-        it.correctAnswersCount!! >= 3
+        (it.correctAnswersCount ?: 0) >= 3
     }.size
-
-    val learnedWords = dictionary.filter()
-    val wordCount = dictionary.size
-    val percentageOfLearnedWords = dictionary.filter() * 100 / dictionary.size
 
     while (true) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         println("Введите номер меню:")
-        when (readln()) {
-            "1" -> println("Учить слова")
-            "2" -> println("Выучено $learnedWords из $wordCount слов | $percentageOfLearnedWords%")
-            "0" -> break
+        when (readln().toIntOrNull()) {
+            1 -> println("Учить слова")
+            2 -> println(
+                "Выучено ${dictionary.filter()} из ${dictionary.size} слов | " +
+                        "${dictionary.filter() * 100 / dictionary.size}%"
+            )
+            0 -> break
             else -> println("Такой команды нет")
         }
     }
