@@ -3,7 +3,7 @@ import java.io.File
 data class Word(
     val original: String,
     val translate: String,
-    var correctAnswersCount: Int? = 0,
+    var correctAnswersCount: Int = 0,
 )
 
 fun main() {
@@ -20,19 +20,26 @@ fun main() {
         println(it)
     }
 
-    fun MutableList<Word>.filter(): Int = filter {
-        (it.correctAnswersCount ?: 0) >= 3
-    }.size
+    fun MutableList<Word>.filterLearnedWords(): List<Word> {
+        return filter {
+            it.correctAnswersCount >= 3
+        }
+    }
 
     while (true) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         println("Введите номер меню:")
         when (readln().toIntOrNull()) {
             1 -> println("Учить слова")
-            2 -> println(
-                "Выучено ${dictionary.filter()} из ${dictionary.size} слов | " +
-                        "${dictionary.filter() * 100 / dictionary.size}%"
-            )
+            2 -> {
+                val learnedWords = dictionary.filterLearnedWords().size
+                val wordCount = dictionary.size
+                val percentageOfLearnedWords = learnedWords * 100 / wordCount
+                println(
+                    "Выучено $learnedWords из $wordCount слов | $percentageOfLearnedWords%"
+                )
+            }
+
             0 -> break
             else -> println("Такой команды нет")
         }
