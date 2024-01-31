@@ -16,16 +16,6 @@ fun main() {
         dictionary.add(word)
     }
 
-    dictionary.forEach {
-        println(it)
-    }
-
-    fun MutableList<Word>.filterLearnedWords(): List<Word> {
-        return filter {
-            it.correctAnswersCount >= 3
-        }
-    }
-
     while (true) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         println("Введите номер меню:")
@@ -43,5 +33,11 @@ fun main() {
             0 -> break
             else -> println("Такой команды нет")
         }
+    }
+}
+
+fun MutableList<Word>.filterLearnedWords(): List<Word> {
+    return filter {
+        it.correctAnswersCount >= 3
     }
 }
