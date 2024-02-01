@@ -20,7 +20,37 @@ fun main() {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         println("Введите номер меню:")
         when (readln().toIntOrNull()) {
-            1 -> println("Учить слова")
+            1 -> {
+                val answersNumber = 4
+                while (true) {
+                    val unLearnedWordsList: List<Word> = dictionary.filter {
+                        it.correctAnswersCount < 3
+                    }
+
+                    if (unLearnedWordsList.isNotEmpty()) {
+                        var shuffledWords = unLearnedWordsList.shuffled().take(answersNumber)
+                        if (shuffledWords.size < answersNumber) {
+                            shuffledWords += dictionary.filterLearnedWords().shuffled()
+                                .take(answersNumber - shuffledWords.size)
+                        }
+
+                        for (i in shuffledWords.take(1)) {
+                            println(i.original)
+                        }
+                        shuffledWords.forEach {
+                            print("${shuffledWords.indexOf(it) + 1} - ${it.translate}, ")
+                        }
+                        println("0 - выход")
+
+                        if (readln().toIntOrNull() == 0) break
+
+                    } else {
+                        println("Вы выучили все слова")
+                        break
+                    }
+                }
+            }
+
             2 -> {
                 val learnedWords = dictionary.filterLearnedWords().size
                 val wordCount = dictionary.size
