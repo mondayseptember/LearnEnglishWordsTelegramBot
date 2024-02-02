@@ -21,33 +21,30 @@ fun main() {
         println("Введите номер меню:")
         when (readln().toIntOrNull()) {
             1 -> {
-                val answersNumber = 4
                 while (true) {
                     val unLearnedWordsList: List<Word> = dictionary.filter {
-                        it.correctAnswersCount < 3
+                        it.correctAnswersCount < CORRECT_ANSWERS_COUNTER
                     }
 
-                    if (unLearnedWordsList.isNotEmpty()) {
-                        var shuffledWords = unLearnedWordsList.shuffled().take(answersNumber)
-                        if (shuffledWords.size < answersNumber) {
-                            shuffledWords += dictionary.filterLearnedWords().shuffled()
-                                .take(answersNumber - shuffledWords.size)
-                        }
-
-                        for (i in shuffledWords.take(1)) {
-                            println(i.original)
-                        }
-                        shuffledWords.forEach {
-                            print("${shuffledWords.indexOf(it) + 1} - ${it.translate}, ")
-                        }
-                        println("0 - выход")
-
-                        if (readln().toIntOrNull() == 0) break
-
-                    } else {
+                    if (unLearnedWordsList.isEmpty()) {
                         println("Вы выучили все слова")
                         break
                     }
+                    var shuffledWords = unLearnedWordsList.shuffled().take(ANSWERS_NUMBER)
+                    if (shuffledWords.size < ANSWERS_NUMBER) {
+                        shuffledWords += dictionary.filterLearnedWords().shuffled()
+                            .take(ANSWERS_NUMBER - shuffledWords.size)
+                    }
+
+                    for (i in shuffledWords.take(1)) {
+                        println(i.original)
+                    }
+                    shuffledWords.forEachIndexed { index, word ->
+                        print("${index + 1} - ${word.translate}, ")
+                    }
+                    println("0 - выход")
+
+                    if (readln().toIntOrNull() == 0) break
                 }
             }
 
@@ -68,6 +65,9 @@ fun main() {
 
 fun MutableList<Word>.filterLearnedWords(): List<Word> {
     return filter {
-        it.correctAnswersCount >= 3
+        it.correctAnswersCount >= CORRECT_ANSWERS_COUNTER
     }
 }
+
+const val ANSWERS_NUMBER = 4
+const val CORRECT_ANSWERS_COUNTER = 3
