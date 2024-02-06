@@ -36,15 +36,31 @@ fun main() {
                             .take(ANSWERS_NUMBER - shuffledWords.size)
                     }
 
-                    for (i in shuffledWords.take(1)) {
+                    var correctWordNumber = 0
+                    val learningWord = shuffledWords.take(1)
+
+                    for (i in learningWord) {
+                        correctWordNumber = shuffledWords.indexOf(i) + 1
                         println(i.original)
                     }
+
                     shuffledWords.forEachIndexed { index, word ->
                         print("${index + 1} - ${word.translate}, ")
                     }
-                    println("0 - выход")
+                    println("0 - Меню")
 
-                    if (readln().toIntOrNull() == 0) break
+                    when (readln().toIntOrNull()) {
+                        0 -> break
+                        correctWordNumber -> {
+                            println("Правильно!")
+                            learningWord.map {
+                                it.correctAnswersCount++
+                            }
+                            wordsFile.saveDictionary(dictionary)
+                        }
+
+                        else -> println("Неправильно - слово ${shuffledWords[correctWordNumber - 1].translate}")
+                    }
                 }
             }
 
@@ -66,6 +82,12 @@ fun main() {
 fun MutableList<Word>.filterLearnedWords(): List<Word> {
     return filter {
         it.correctAnswersCount >= CORRECT_ANSWERS_COUNTER
+    }
+}
+
+fun File.saveDictionary(dictionary: MutableList<Word>) {
+    dictionary.forEach {
+        appendText(it.original + "|" + it.translate + "|" + it.correctAnswersCount + "\n")
     }
 }
 
