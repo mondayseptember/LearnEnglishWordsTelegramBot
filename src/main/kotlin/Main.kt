@@ -20,7 +20,34 @@ fun main() {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         println("Введите номер меню:")
         when (readln().toIntOrNull()) {
-            1 -> println("Учить слова")
+            1 -> {
+                while (true) {
+                    val unLearnedWordsList: List<Word> = dictionary.filter {
+                        it.correctAnswersCount < CORRECT_ANSWERS_COUNTER
+                    }
+
+                    if (unLearnedWordsList.isEmpty()) {
+                        println("Вы выучили все слова")
+                        break
+                    }
+                    var shuffledWords = unLearnedWordsList.shuffled().take(ANSWERS_NUMBER)
+                    if (shuffledWords.size < ANSWERS_NUMBER) {
+                        shuffledWords += dictionary.filterLearnedWords().shuffled()
+                            .take(ANSWERS_NUMBER - shuffledWords.size)
+                    }
+
+                    for (i in shuffledWords.take(1)) {
+                        println(i.original)
+                    }
+                    shuffledWords.forEachIndexed { index, word ->
+                        print("${index + 1} - ${word.translate}, ")
+                    }
+                    println("0 - выход")
+
+                    if (readln().toIntOrNull() == 0) break
+                }
+            }
+
             2 -> {
                 val learnedWords = dictionary.filterLearnedWords().size
                 val wordCount = dictionary.size
@@ -38,6 +65,9 @@ fun main() {
 
 fun MutableList<Word>.filterLearnedWords(): List<Word> {
     return filter {
-        it.correctAnswersCount >= 3
+        it.correctAnswersCount >= CORRECT_ANSWERS_COUNTER
     }
 }
+
+const val ANSWERS_NUMBER = 4
+const val CORRECT_ANSWERS_COUNTER = 3
