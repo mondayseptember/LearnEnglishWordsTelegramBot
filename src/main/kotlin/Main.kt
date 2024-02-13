@@ -21,7 +21,7 @@ fun main() {
 
     fun saveDictionary(dictionary: MutableList<Word>) {
         dictionary.forEach {
-            wordsFile.appendText(it.original + "|" + it.translate + "|" + it.correctAnswersCount + "\n")
+            wordsFile.appendText("${it.original}|${it.translate}|${it.correctAnswersCount}\n")
         }
     }
 
@@ -40,12 +40,12 @@ fun main() {
                         break
                     }
                     var shuffledWords = unLearnedWordsList.shuffled().take(ANSWERS_NUMBER)
+                    val learningWord = shuffledWords.random()
                     if (shuffledWords.size < ANSWERS_NUMBER) {
                         shuffledWords += dictionary.filterLearnedWords().shuffled()
                             .take(ANSWERS_NUMBER - shuffledWords.size)
                     }
 
-                    val learningWord = shuffledWords.random()
                     val correctWordNumber = shuffledWords.indexOf(learningWord) + 1
                     println(learningWord.original)
 
