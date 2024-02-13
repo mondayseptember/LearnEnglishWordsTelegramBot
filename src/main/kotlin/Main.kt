@@ -1,5 +1,8 @@
 import java.io.File
 
+const val ANSWERS_NUMBER = 4
+const val CORRECT_ANSWERS_COUNTER = 3
+
 data class Word(
     val original: String,
     val translate: String,
@@ -14,6 +17,12 @@ fun main() {
         val split = i.split("|")
         val word = Word(original = split[0], translate = split[1], correctAnswersCount = split[2].toIntOrNull() ?: 0)
         dictionary.add(word)
+    }
+
+    fun saveDictionary(dictionary: MutableList<Word>) {
+        dictionary.forEach {
+            wordsFile.appendText(it.original + "|" + it.translate + "|" + it.correctAnswersCount + "\n")
+        }
     }
 
     while (true) {
@@ -36,13 +45,9 @@ fun main() {
                             .take(ANSWERS_NUMBER - shuffledWords.size)
                     }
 
-                    var correctWordNumber = 0
-                    val learningWord = shuffledWords.take(1)
-
-                    for (i in learningWord) {
-                        correctWordNumber = shuffledWords.indexOf(i) + 1
-                        println(i.original)
-                    }
+                    val learningWord = shuffledWords.random()
+                    val correctWordNumber = shuffledWords.indexOf(learningWord) + 1
+                    println(learningWord.original)
 
                     shuffledWords.forEachIndexed { index, word ->
                         print("${index + 1} - ${word.translate}, ")
@@ -53,10 +58,8 @@ fun main() {
                         0 -> break
                         correctWordNumber -> {
                             println("Правильно!")
-                            learningWord.map {
-                                it.correctAnswersCount++
-                            }
-                            wordsFile.saveDictionary(dictionary)
+                            learningWord.correctAnswersCount++
+                            saveDictionary(dictionary)
                         }
 
                         else -> println("Неправильно - слово ${shuffledWords[correctWordNumber - 1].translate}")
@@ -84,12 +87,3 @@ fun MutableList<Word>.filterLearnedWords(): List<Word> {
         it.correctAnswersCount >= CORRECT_ANSWERS_COUNTER
     }
 }
-
-fun File.saveDictionary(dictionary: MutableList<Word>) {
-    dictionary.forEach {
-        appendText(it.original + "|" + it.translate + "|" + it.correctAnswersCount + "\n")
-    }
-}
-
-const val ANSWERS_NUMBER = 4
-const val CORRECT_ANSWERS_COUNTER = 3
