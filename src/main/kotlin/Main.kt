@@ -1,5 +1,8 @@
 import java.io.File
 
+const val ANSWERS_NUMBER = 4
+const val CORRECT_ANSWERS_COUNTER = 3
+
 data class Word(
     val original: String,
     val translate: String,
@@ -14,6 +17,12 @@ fun main() {
         val split = i.split("|")
         val word = Word(original = split[0], translate = split[1], correctAnswersCount = split[2].toIntOrNull() ?: 0)
         dictionary.add(word)
+    }
+
+    fun saveDictionary(dictionary: MutableList<Word>) {
+        dictionary.forEach {
+            wordsFile.appendText("${it.original}|${it.translate}|${it.correctAnswersCount}\n")
+        }
     }
 
     while (true) {
@@ -31,20 +40,30 @@ fun main() {
                         break
                     }
                     var shuffledWords = unLearnedWordsList.shuffled().take(ANSWERS_NUMBER)
+                    val learningWord = shuffledWords.random()
                     if (shuffledWords.size < ANSWERS_NUMBER) {
                         shuffledWords += dictionary.filterLearnedWords().shuffled()
                             .take(ANSWERS_NUMBER - shuffledWords.size)
                     }
 
-                    for (i in shuffledWords.take(1)) {
-                        println(i.original)
-                    }
+                    val correctWordNumber = shuffledWords.indexOf(learningWord) + 1
+                    println(learningWord.original)
+
                     shuffledWords.forEachIndexed { index, word ->
                         print("${index + 1} - ${word.translate}, ")
                     }
-                    println("0 - выход")
+                    println("0 - Меню")
 
-                    if (readln().toIntOrNull() == 0) break
+                    when (readln().toIntOrNull()) {
+                        0 -> break
+                        correctWordNumber -> {
+                            println("Правильно!")
+                            learningWord.correctAnswersCount++
+                            saveDictionary(dictionary)
+                        }
+
+                        else -> println("Неправильно - слово ${shuffledWords[correctWordNumber - 1].translate}")
+                    }
                 }
             }
 
@@ -68,6 +87,3 @@ fun MutableList<Word>.filterLearnedWords(): List<Word> {
         it.correctAnswersCount >= CORRECT_ANSWERS_COUNTER
     }
 }
-
-const val ANSWERS_NUMBER = 4
-const val CORRECT_ANSWERS_COUNTER = 3
