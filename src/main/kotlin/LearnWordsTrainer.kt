@@ -11,7 +11,9 @@ data class Questions(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(
+    private val wordsFile: File = File("words.txt")
+) {
     private var question: Questions? = null
     private val dictionary = loadDictionary()
 
@@ -20,7 +22,6 @@ class LearnWordsTrainer {
         val wordsNumber = dictionary.size
         val percentageOfLearnedWords = learnedWords * 100 / wordsNumber
         return Statistics(learnedWords, wordsNumber, percentageOfLearnedWords)
-
     }
 
     fun getNextQuestion(): Questions? {
@@ -56,7 +57,6 @@ class LearnWordsTrainer {
 
     private fun loadDictionary(): List<Word> {
         val dictionary = mutableListOf<Word>()
-        val wordsFile: File = File("words.txt")
         for (i in wordsFile.readLines()) {
             val split = i.split("|")
             val word =
@@ -67,7 +67,6 @@ class LearnWordsTrainer {
     }
 
     private fun saveDictionary(dictionary: List<Word>) {
-        val wordsFile: File = File("words.txt")
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText("${it.original}|${it.translate}|${it.correctAnswersCount}\n")
