@@ -14,15 +14,16 @@ const val MENU = "menu"
 class TelegramBotService(
     private val botToken: String,
 ) {
+    private val client: HttpClient = HttpClient.newBuilder().build()
+
     fun getUpdates(updateId: Int): String {
         val urlGetUpdates = "$TELEGRAM_URL$botToken/getUpdates?offset=$updateId"
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
         return response.body()
     }
 
-    fun sendMessage(chatId: String, text: String): String {
+    fun sendMessage(chatId: Long, text: String): String {
         val encoded = URLEncoder.encode(
             text,
             StandardCharsets.UTF_8
@@ -30,13 +31,12 @@ class TelegramBotService(
         println(encoded)
 
         val sendMessage = "$TELEGRAM_URL$botToken/sendMessage?chat_id=$chatId&text=$encoded"
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
         return response.body()
     }
 
-    fun sendMenu(chatId: String): String {
+    fun sendMenu(chatId: Long): String {
         val sendMenu = "$TELEGRAM_URL$botToken/sendMessage"
         val sendMenuBody = """ 
             {
@@ -59,7 +59,6 @@ class TelegramBotService(
             }
         """.trimIndent()
 
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMenu))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(sendMenuBody))
@@ -68,11 +67,19 @@ class TelegramBotService(
         return response.body()
     }
 
-    fun sendQuestion(chatId: String, question: Questions): String {
+    fun sendQuestion(chatId: Long, question: Questions): String {
         val sendQuestion = "$TELEGRAM_URL$botToken/sendMessage"
-        val variants = question.variants.mapIndexed { index, word: Word ->
-            "${index + 1}"
-        }
+
+        val variantsString = question.variants
+            .mapIndexed { index, word ->
+                """
+                    {
+                        "text": "${word.translate}", 
+                        "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${index}" 
+                    }
+                 """.trimIndent()
+            }
+            .joinToString(separator = ",")
 
         val sendQuestionBody = """ 
             {
@@ -81,22 +88,7 @@ class TelegramBotService(
                 "reply_markup": {
                     "inline_keyboard": [
                         [
-                            {
-                                "text": "${question.variants[0].translate}", 
-                                "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${variants[0]}"
-                            },
-                            {
-                                "text": "${question.variants[1].translate}", 
-                                "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${variants[1]}" 
-                            }, 
-                            {
-                                "text": "${question.variants[2].translate}", 
-                                "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${variants[2]}" 
-                            },
-                            {
-                                "text": "${question.variants[3].translate}", 
-                                "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX${variants[3]}" 
-                            },
+                            $variantsString,
                             {
                                 "text": "Меню", 
                                 "callback_data": "$MENU" 
@@ -107,7 +99,6 @@ class TelegramBotService(
             }
         """.trimIndent()
 
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendQuestion))
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(sendQuestionBody))
