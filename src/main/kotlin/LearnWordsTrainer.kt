@@ -1,5 +1,11 @@
 import java.io.File
 
+data class Word(
+    val original: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
+
 data class Statistics(
     val learnedWords: Int,
     val wordCount: Int,
@@ -14,7 +20,7 @@ data class Questions(
 class LearnWordsTrainer(
     private val wordsFile: File = File("words.txt")
 ) {
-    private var question: Questions? = null
+    var question: Questions? = null
     private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
