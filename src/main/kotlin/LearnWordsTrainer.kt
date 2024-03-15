@@ -1,5 +1,7 @@
+import kotlinx.serialization.Serializable
 import java.io.File
 
+@Serializable
 data class Word(
     val original: String,
     val translate: String,
@@ -53,7 +55,7 @@ class LearnWordsTrainer(
             val correctWordNumber = it.variants.indexOf(it.correctAnswer)
             if (userAnswerIndex == correctWordNumber) {
                 it.correctAnswer.correctAnswersCount++
-                saveDictionary(dictionary)
+                saveDictionary()
                 true
             } else {
                 false
@@ -62,6 +64,9 @@ class LearnWordsTrainer(
     }
 
     private fun loadDictionary(): List<Word> {
+        if (!wordsFile.exists()) {
+            File("words.txt").copyTo(wordsFile)
+        }
         val dictionary = mutableListOf<Word>()
         for (i in wordsFile.readLines()) {
             val split = i.split("|")
@@ -72,10 +77,15 @@ class LearnWordsTrainer(
         return dictionary
     }
 
-    private fun saveDictionary(dictionary: List<Word>) {
+    private fun saveDictionary() {
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText("${it.original}|${it.translate}|${it.correctAnswersCount}\n")
         }
+    }
+
+    fun resetProgress() {
+        dictionary.forEach { it.correctAnswersCount = 0 }
+        saveDictionary()
     }
 }
