@@ -72,17 +72,23 @@ class TelegramBotService(
 
     fun sendQuestion(chatId: Long, question: Questions): String {
         val sendQuestion = "$TELEGRAM_URL$botToken/sendMessage"
+        val variantsKeyboard: List<List<InlineKeyboard>> = question.variants.mapIndexed { index, word ->
+            listOf(
+                InlineKeyboard(
+                    text = word.translate,
+                    callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
+                )
+            )
+        }
+
+        val exitKeyboard: List<List<InlineKeyboard>> =
+            listOf(listOf(InlineKeyboard(text = "Меню", callbackData = MENU)))
+
         val requestBody = SendMessageRequest(
             chatId = chatId,
             text = question.correctAnswer.original,
             replyMarkup = ReplyMarkup(
-                question.variants.mapIndexed { index, word ->
-                    listOf(
-                        InlineKeyboard(
-                            text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
-                        )
-                    )
-                }
+                inlineKeyboard = variantsKeyboard + exitKeyboard
             )
         )
 

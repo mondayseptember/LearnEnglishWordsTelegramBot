@@ -117,20 +117,20 @@ fun handleUpdate(
         checkNextQuestionAndSend(trainer, telegramBot, chatId)
     }
 
-    if (data != null) {
-        if (data.startsWith(CALLBACK_DATA_ANSWER_PREFIX)) {
-            val index = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
+    if (data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true) {
+        val index = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
 
-            if (trainer.checkAnswer(index)) {
-                telegramBot.sendMessage(chatId, "Правильно!"
-                )
-            } else {
-                telegramBot.sendMessage(chatId, "Неправильно: ${trainer.question?.correctAnswer?.original} - " +
-                            "${trainer.question?.correctAnswer?.translate}"
-                )
-            }
-            checkNextQuestionAndSend(trainer, telegramBot, chatId)
+        if (trainer.checkAnswer(index)) {
+            telegramBot.sendMessage(
+                chatId, "Правильно!"
+            )
+        } else {
+            telegramBot.sendMessage(
+                chatId, "Неправильно: ${trainer.question?.correctAnswer?.original} - " +
+                        "${trainer.question?.correctAnswer?.translate}"
+            )
         }
+        checkNextQuestionAndSend(trainer, telegramBot, chatId)
     }
 }
 
