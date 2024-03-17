@@ -20,7 +20,7 @@ data class Questions(
 )
 
 class LearnWordsTrainer(
-    private val wordsFile: File = File("words.txt")
+    private val fileName: String = "words.txt",
 ) {
     var question: Questions? = null
     private val dictionary = loadDictionary()
@@ -64,6 +64,7 @@ class LearnWordsTrainer(
     }
 
     private fun loadDictionary(): List<Word> {
+        val wordsFile = File(fileName)
         if (!wordsFile.exists()) {
             File("words.txt").copyTo(wordsFile)
         }
@@ -78,6 +79,7 @@ class LearnWordsTrainer(
     }
 
     private fun saveDictionary() {
+        val wordsFile = File(fileName)
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText("${it.original}|${it.translate}|${it.correctAnswersCount}\n")
