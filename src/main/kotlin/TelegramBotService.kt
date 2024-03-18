@@ -18,11 +18,12 @@ class TelegramBotService(
     private val client: HttpClient = HttpClient.newBuilder().build()
     private val json = Json { ignoreUnknownKeys = true }
 
-    fun getUpdates(updateId: Long): Response {
+    fun getUpdates(updateId: Long): Response? {
         val urlGetUpdates = "$TELEGRAM_URL$botToken/getUpdates?offset=$updateId"
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return json.decodeFromString(response.body())
+        val response: HttpResponse<String>? =
+            kotlin.runCatching { client.send(request, HttpResponse.BodyHandlers.ofString()) }.getOrNull()
+        return response?.body()?.let { json.decodeFromString(it) }
     }
 
     fun sendMessage(chatId: Long, text: String): String {

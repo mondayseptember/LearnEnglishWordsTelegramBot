@@ -74,10 +74,12 @@ fun main(args: Array<String>) {
         val response = telegramBot.getUpdates(lastUpdateId)
         println(response)
 
-        if (response.result.isEmpty()) continue
-        val sortedUpdated = response.result.sortedBy { it.updateId }
-        sortedUpdated.forEach { handleUpdate(it, trainers, telegramBot) }
-        lastUpdateId = sortedUpdated.last().updateId + 1
+        if (response != null) {
+            if (response.result.isEmpty()) continue
+            val sortedUpdated = response.result.sortedBy { it.updateId }
+            sortedUpdated.forEach { handleUpdate(it, trainers, telegramBot) }
+            lastUpdateId = sortedUpdated.last().updateId + 1
+        }
     }
 }
 
